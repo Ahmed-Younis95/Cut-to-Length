@@ -25,28 +25,73 @@ document.addEventListener("DOMContentLoaded", () => {
           width > 0 && height > 0 && length > 0 && size > 0;
   }
 
-  function calculateRequiredLength(width, height, length, size) {
-      const barArea = (Math.PI / 4) * Math.pow(size / 1000, 2);
-      let volume, finalProductLength, numberOfBars;
-      let i = 0;
+//   function calculateRequiredLength(width, height, length, size) {
+//       const barArea = (Math.PI / 4) * Math.pow(size / 1000, 2);
+//       let volume, finalProductLength, numberOfBars;
+//       let i = 0;
 
-      while (true) {
-          volume = (width / 1000) * (height / 1000) * length;
-          finalProductLength = volume / barArea;
-          numberOfBars = finalProductLength / 12;
-          i +=1;
-          console.log('in loop:' + i  + ', number of bars: ' + numberOfBars);
-          console.log('in loop:' + i  + ', if: ' + (numberOfBars % 1));
-          if (numberOfBars % 1 <= 0.5) {
-              if (numberOfBars % 1 <= 0.02) {
-                  break;
-              }
-              length -= 0.01;
-          } else {
-              length += 0.01;
-          }
-      }
+//       while (true) {
+//           volume = (width / 1000) * (height / 1000) * length;
+//           finalProductLength = volume / barArea;
+//           numberOfBars = finalProductLength / 12;
+//           i +=1;
+//           console.log('in loop:' + i  + ', number of bars: ' + numberOfBars);
+//           console.log('in loop:' + i  + ', if: ' + (numberOfBars % 1));
+//           if (numberOfBars % 1 <= 0.5) {
+//               if (numberOfBars % 1 <= 0.02) {
+//                   break;
+//               }
+//               length -= 0.01;
+//           } else {
+//               length += 0.01;
+//           }
+//       }
 
-      return { length, numberOfBars: Math.round(numberOfBars) };
-  }
+//       return { length, numberOfBars: Math.round(numberOfBars) };
+//   }
+function calculateRequiredLength(width, height, length, size) {
+    const barArea = (Math.PI / 4) * Math.pow(size / 1000, 2);
+    let volume, finalProductLength, numberOfBars;
+    let previousLength = length;
+    let i = 0;
+
+    while (true) {
+        volume = (width / 1000) * (height / 1000) * length;
+        finalProductLength = volume / barArea;
+        numberOfBars = finalProductLength / 12;
+
+        console.log('in loop:' + i  + ', number of bars: ' + numberOfBars);
+        console.log('in loop:' + i  + ', if: ' + (numberOfBars % 1));
+        
+        // Break if the number of bars is close enough to an integer
+        if (Math.abs(numberOfBars % 1) < 0.020) {
+            break;
+        }
+
+        // Adjust length slightly and check if the change is very small
+        if (numberOfBars % 1 <= 0.50) {
+            length -= 0.005;
+        } else {
+            length += 0.005;
+        }
+
+        // Check if the adjustment is too small to prevent infinite loop
+        if (Math.abs(previousLength - length) < 0.0001) {
+            console.warn("Adjustment too small, breaking loop to avoid infinite loop.");
+            break;
+        }
+
+        previousLength = length;
+        i++;
+        
+        // Optional: limit the number of iterations to prevent infinite loops
+        if (i > 1000) {
+            console.error("Exceeded maximum iterations, breaking loop.");
+            break;
+        }
+    }
+
+    return { length, numberOfBars: Math.round(numberOfBars) };
+}
+
 });
